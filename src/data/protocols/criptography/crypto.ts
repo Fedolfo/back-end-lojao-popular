@@ -1,3 +1,3 @@
 export interface Crypto {
-  randomBytes: () => Promise<string>
+  randomUUID: () => Promise<string>
 }
