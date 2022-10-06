@@ -28,6 +28,7 @@
     "@types/jsonwebtoken": "^8.5.9",
     "@types/node": "^18.7.15",
     "@types/nodemailer": "^6.4.6",
+    "@types/nodemailer-express-handlebars": "^4.0.2",
     "@types/supertest": "^2.0.12",
     "@types/validator": "^13.7.6",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
@@ -53,6 +54,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.9.1",
     "nodemailer": "^6.8.0",
+    "nodemailer-express-handlebars": "^5.0.0",
     "nodemon": "^2.0.19",
     "validator": "^13.7.0"
   }
