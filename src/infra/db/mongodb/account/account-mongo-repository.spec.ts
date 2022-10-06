@@ -142,4 +142,28 @@ describe('Account Mongo Repository', () => {
       expect(account).toBeFalsy()
     })
   })
+
+  describe('findByIdAndUpdateAccount()', () => {
+    it('Should update the account passwordResetToken and passwordResetExpires on findByIdAndUpdateAccount success', async () => {
+      const sut = makeSut()
+      const res = await accountCollection.insertOne({
+        name: 'any_name',
+        email: 'any_email@email.com',
+        password: 'any_password',
+        passwordResetToken: 'any_token',
+        passwordResetExpires: '2022-10-06T16:14:44.976Z'
+      })
+
+      await sut.findByIdAndUpdateAccount(res.insertedId.toString(), 'any_token', new Date())
+
+      const account = await accountCollection.findOne({
+        _id: res.insertedId
+      })
+      expect(account).toBeTruthy()
+      expect(account?.email).toBe('any_email@email.com')
+      expect(account?.password).toBe('any_password')
+      expect(account?.passwordResetToken).toBe('any_token')
+      expect(account?.passwordResetExpires).toBe('2022-10-06T16:14:44.976Z')
+    })
+  })
 })
