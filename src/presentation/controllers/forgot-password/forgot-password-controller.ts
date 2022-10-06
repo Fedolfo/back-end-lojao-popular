@@ -1,21 +1,21 @@
-import { Crypto } from '../../../data/protocols/criptography/crypto'
-import { LoadAccountByEmailRepository } from '../../../data/usecases/add-account/db-add-account-protocols'
-import { FindByIdAndUpdateAccount } from '../../../domain/usecases/find-by-id-and-update-account'
+import { Controller, HttpRequest, HttpResponse, FindByIdAndUpdateAccount, LoadAccountByEmailRepository, Crypto, NodeMailer } from './forgot-password-protocols'
 import { UserNotFound } from '../../errors/user-not-found'
-import { badRequest, serverError } from '../../helpers/http/http-helper'
-import { Controller, HttpRequest, HttpResponse } from '../../protocols'
+import { badRequest, noContent, serverError } from '../../helpers/http/http-helper'
 
-export class ForgotPassword implements Controller {
+export class ForgotPasswordController implements Controller {
   private readonly loadAccountByEmailRepository: LoadAccountByEmailRepository
 
   private readonly crypto: Crypto
 
   private readonly findByIdAndUpdateAccount: FindByIdAndUpdateAccount
 
-  constructor(loadAccountByEmailRepository: LoadAccountByEmailRepository, crypto: Crypto, findByIdAndUpdateAccount: FindByIdAndUpdateAccount) {
+  private readonly nodemailer: NodeMailer
+
+  constructor(loadAccountByEmailRepository: LoadAccountByEmailRepository, crypto: Crypto, findByIdAndUpdateAccount: FindByIdAndUpdateAccount, nodemailer: NodeMailer) {
     this.loadAccountByEmailRepository = loadAccountByEmailRepository
     this.crypto = crypto
     this.findByIdAndUpdateAccount = findByIdAndUpdateAccount
+    this.nodemailer = nodemailer
   }
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -27,19 +27,24 @@ export class ForgotPassword implements Controller {
         return badRequest(new UserNotFound('error: User not found'))
       }
 
-      const token = await this.crypto.randomBytes()
+      const token = await this.crypto.randomUUID()
 
       const now = new Date()
       now.setHours(now.getHours() + 1)
 
       await this.findByIdAndUpdateAccount.findByIdAndUpdateAccount(user._id, token, now)
 
-      return {
-        statusCode: 200,
-        body: ''
-      }
+      const nodemailMessage = await this.nodemailer.transport()
+
+      await Promise.resolve(nodemailMessage.sendMail({
+        to: email,
+        from: 'filipecandido123@hotmail.com',
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        html: `<p>Você esqueceu a sua senha? Não tem problema, utilize esse token: ${token} </p> `,
+        subject: 'Recuperação de senha'
+      }))
+      return noContent()
     } catch (error) {
-      console.log(error)
       return serverError(error)
     }
   }
