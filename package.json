@@ -18,7 +18,7 @@
     "prepare": ""
   },
   "keywords": [],
-  "author": "",
+  "author": "Filipe Cândido",
   "license": "ISC",
   "devDependencies": {
     "@shelf/jest-mongodb": "^4.1.0",
